@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="HandlerLeak">
+        <ignore path="src/com/zykmanhua/app/activity/ChapterActivity.java" />
+        <ignore path="src/com/zykmanhua/app/activity/FirstTab.java" />
+    </issue>
+    <issue id="InflateParams">
+        <ignore path="src/com/zykmanhua/app/adapter/ChapterAdapter.java" />
+        <ignore path="src/com/zykmanhua/app/adapter/PhotoWallAdapter.java" />
+    </issue>
+</lint>
