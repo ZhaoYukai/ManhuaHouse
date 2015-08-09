@@ -35,6 +35,7 @@ public class Config {
 	public static final String KEY_ManhuaType = "ManhuaType";
 	public static final String KEY_ManhuaLastUpdate = "ManhuaLastUpdate";
 	public static final String KEY_ManhuaIsFinish = "ManhuaIsFinish";
+	public static final String KEY_ChapterId = "ChapterId";
 	
 	
 	public static final int RESULT_SUCCESS_CODE = 0x01;

@@ -5,46 +5,44 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.thinkland.sdk.android.DataCallBack;
-import com.thinkland.sdk.android.JuheData;
-import com.thinkland.sdk.android.Parameters;
-import com.zykmanhua.app.bean.ManhuaPicture;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
-public class GetChapterContent {
+import com.thinkland.sdk.android.DataCallBack;
+import com.thinkland.sdk.android.JuheData;
+import com.thinkland.sdk.android.Parameters;
+import com.zykmanhua.app.bean.Manhua;
+
+public class GetManhuaDataByType {
 	
 	private Context mContext = null;
 	private Handler mHandler = null;
 	
-	public GetChapterContent(Context context , Handler handler) {
+	public GetManhuaDataByType(Context context , Handler handler) {
 		mContext = context;
 		mHandler = handler;
 	}
 	
-	
-	public void getChapterContent(final String name , final int id) {
+	public void getManhuaBook(final String manhuaType , final int skipNumber) {
 		Parameters parameters = new Parameters();
 		parameters.add(Config.KEY, Config.APP_KEY);
-		parameters.add(Config.KEY_COMICNAME, name);
-		parameters.add(Config.KEY_ID, id);
+		parameters.add("type", manhuaType);
+		parameters.add(Config.KEY_SKIP, skipNumber);
 		
 		JuheData.executeWithAPI(
 				mContext, 
 				Config.APP_ID, 
-				Config.URL_MANHUA_CONTENT , 
+				Config.URL_MANHUA_BOOK , 
 				JuheData.GET, 
 				parameters, 
 				new DataCallBack() {
 					@Override
 					public void onSuccess(int statusCode, String responseString) {
 						if(statusCode == Config.STATUS_CODE_SUCCESS) {
-							ArrayList<ManhuaPicture> manhuaPictureList = parseJSON(responseString);
-							if(manhuaPictureList != null && mHandler != null) {
-								Message msg = Message.obtain(mHandler , Config.RESULT_SUCCESS_CODE , manhuaPictureList);
+							ArrayList<Manhua> manhuaList = parseJSON(responseString);
+							if(manhuaList != null && mHandler != null) {
+								Message msg = Message.obtain(mHandler , Config.RESULT_SUCCESS_CODE , manhuaList);
 								msg.sendToTarget();
 							}
 						}
@@ -69,41 +67,45 @@ public class GetChapterContent {
 	}
 	
 	
-	
 	/**
+	 * 对收到的json回应字符串进行解析
 	 */
-	private ArrayList<ManhuaPicture> parseJSON(String responseString) {
+	private ArrayList<Manhua> parseJSON(String responseString) {
 		
-		ArrayList<ManhuaPicture> manhuaPictureList = null;
+		ArrayList<Manhua> manhuaList = null;
 		
 		try {
 			JSONObject jsonObject = new JSONObject(responseString);
 			int code = jsonObject.getInt(Config.JSON_error_code);
 			
 			if(code == 200) {
-				manhuaPictureList = new ArrayList<ManhuaPicture>();
-				JSONArray jsonArray = jsonObject.getJSONObject(Config.JSON_result).getJSONArray(Config.JSON_imageList);
+				//如果代码是200，表示服务器返回数据是成功的
+				manhuaList = new ArrayList<Manhua>();
+				JSONArray jsonArray = jsonObject.getJSONObject(Config.JSON_result).getJSONArray(Config.JSON_bookList);
 				int arrLength = jsonArray.length();
-				
 				for(int i = 0 ; i < arrLength ; i++) {
 					JSONObject dataElement = jsonArray.getJSONObject(i);
-					ManhuaPicture manhuaPicture = new ManhuaPicture();
-					manhuaPicture.setmName(jsonObject.getJSONObject(Config.JSON_result).getString(Config.JSON_comicName));
-					manhuaPicture.setmChapterId(jsonObject.getJSONObject(Config.JSON_result).getInt(Config.JSON_chapterId));
-					manhuaPicture.setmImageUrl(dataElement.getString(Config.JSON_imageUrl));
-					manhuaPicture.setmId(dataElement.getInt(Config.JSON_id));
-					manhuaPictureList.add(manhuaPicture);
+					
+					Manhua manhua = new Manhua();
+					manhua.setmName(dataElement.getString(Config.JSON_name));
+					manhua.setmType(dataElement.getString(Config.JSON_type));
+					manhua.setmDes(dataElement.getString(Config.JSON_des));
+					manhua.setmFinish(dataElement.getBoolean(Config.JSON_finish));
+					manhua.setmLastUpdate(dataElement.getInt(Config.JSON_lastUpdate));
+					manhua.setmCoverImg(dataElement.getString(Config.JSON_coverImg));
+					manhuaList.add(manhua);
 				}
-				return manhuaPictureList;
 			}
-			
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		return null;
+		
+		return manhuaList;
 	}
 	
+		
+
 
 }

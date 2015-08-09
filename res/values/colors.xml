@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <color name="state_item_pressed">#44ff0000</color>
+    <color name="state_item_normal">#44ff0000</color>
+    
+</resources>

@@ -11,6 +11,7 @@ import com.zykmanhua.app.util.GetManhuaChapterByName;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -77,10 +78,10 @@ public class ChapterActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ManhuaContent manhuaContent = mManhuaContents.get(position);
-				//以后在这里创建Intent..............................
-				String str1 = manhuaContent.getmName();
-				int id2 = manhuaContent.getmChapterId();
-				Toast.makeText(mContext, str1 + " , " + id2 , Toast.LENGTH_SHORT).show();
+				Intent intent = new Intent(mContext , ContentActivity.class);
+				intent.putExtra(Config.KEY_ManhuaName , manhuaContent.getmName());
+				intent.putExtra(Config.KEY_ChapterId , manhuaContent.getmChapterId());
+				startActivity(intent);
 			}
 		});
 	}

@@ -16,8 +16,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.zykmanhua.app.R;
-import com.zykmanhua.app.bean.Manhua;
+import com.zykmanhua.app.bean.ManhuaPicture;
 import com.zykmanhua.app.util.DiskLruCache;
+import com.zykmanhua.app.util.ZoomImageView;
 import com.zykmanhua.app.util.DiskLruCache.Snapshot;
 
 import android.content.Context;
@@ -27,60 +28,44 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.LruCache;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 
-/**
- * GridView的适配器，负责异步从网络上下载图片展示在照片墙上。
- */
-public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
+public class ContentAdapter extends PagerAdapter {
 
-	//记录所有正在下载或等待下载的任务。
+	private Context mContext = null;
+	private List<ManhuaPicture> mManhuaPictures = null;
+	private ImageView[] mImageViews = null;
+	// 记录所有正在下载或等待下载的任务。
 	private Set<BitmapWorkerTask> taskCollection = null;
-
-	//图片缓存技术的核心类，用于缓存所有下载好的图片，在程序内存达到设定值时会将最少最近使用的图片移除掉。
+	// 图片缓存技术的核心类，用于缓存所有下载好的图片，在程序内存达到设定值时会将最少最近使用的图片移除掉。
 	private LruCache<String, Bitmap> mMemoryCache = null;
-
-	//图片硬盘缓存核心类。
+	// 图片硬盘缓存核心类。
 	private DiskLruCache mDiskLruCache = null;
-
-	//GridView的实例
-	private GridView mPhotoWall = null;
-
-	//记录每个子项的高度。
-	private int mItemHeight = 0;
+	private ViewPager mViewPager = null;
 	
-	private LayoutInflater mLayoutInflater = null;
-
 	
-	/**
-	 * 很多成员变量的初始化工作
-	 */
-	public PhotoWallAdapter(Context context, int textViewResourceId, List<Manhua> manhuas, GridView photoWall) {
-		super(context, textViewResourceId, manhuas);
-		
-		mLayoutInflater = LayoutInflater.from(context);
-		mPhotoWall = photoWall;
+
+	public ContentAdapter(Context context, List<ManhuaPicture> manhuaPictures , ViewPager viewPager) {
+		mContext = context;
+		mManhuaPictures = manhuaPictures;
+		mViewPager = viewPager;
+		mImageViews = new ImageView[getCount()];
 		taskCollection = new HashSet<BitmapWorkerTask>();
-		
 		// 获取应用程序最大可用内存
 		int maxMemory = (int) Runtime.getRuntime().maxMemory();
 		// 设置图片缓存大小为程序最大可用内存的1/8
 		int cacheSize = maxMemory / 8;
-		
 		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 			@Override
 			protected int sizeOf(String key, Bitmap bitmap) {
 				return bitmap.getByteCount();
 			}
 		};
-		
 		try {
 			// 获取图片缓存路径
 			File cacheDir = getDiskCacheDir(context, "bitmap");
@@ -89,122 +74,58 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 			}
 			// 创建DiskLruCache实例，初始化缓存数据
 			mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(context), 1, 50 * 1024 * 1024);
-		} 
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	
+	
+	
 
-	/**
-	 * 每个网格要显示出来，都会调用这个getView()方法
-	 */
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-
-		Manhua manhua = getItem(position);
-		View view = null;
-		
-		if (convertView == null) {
-			view = mLayoutInflater.inflate(R.layout.photo_layout, null);
-		} 
-		else {
-			view = convertView;
-		}
-		
-		ImageView imageView = (ImageView) view.findViewById(R.id.id_photo);
-		if (imageView.getLayoutParams().height != mItemHeight) {
-			imageView.getLayoutParams().height = mItemHeight;
-		}
-		
-		// 给ImageView设置一个Tag，保证异步加载图片时不会乱序
-		imageView.setTag(manhua.getmCoverImg());
-		//imageView.setImageResource(R.drawable.empty_photo);
-		loadBitmaps(imageView, manhua.getmCoverImg());
-		return view;
-
-		/*
-		Manhua manhua = getItem(position);
-		String imageUrl = manhua.getmCoverImg();
-		ViewHolder viewHolder = null;
-		if(convertView == null) {
-			viewHolder = new ViewHolder();
-			convertView = mLayoutInflater.inflate(R.layout.photo_layout, null);
-			viewHolder.imageView = (ImageView) convertView.findViewById(R.id.id_photo);
-			if(viewHolder.imageView.getLayoutParams().height != mItemHeight) {
-				viewHolder.imageView.getLayoutParams().height = mItemHeight;
-			}
-			convertView.setTag(viewHolder);
-		}
-		else {
-			viewHolder = (ViewHolder) convertView.getTag();
-		}
-		viewHolder.imageView.setTag(imageUrl);
-		loadBitmaps(viewHolder.imageView, imageUrl);
-		return convertView;
-		*/
+	public Object instantiateItem(ViewGroup container, int position) {
+		ZoomImageView zoomImageView = new ZoomImageView(mContext);
+		zoomImageView.setImageResource(R.drawable.empty_photo);
+		container.addView(zoomImageView);
+		mImageViews[position] = zoomImageView;
+		String imageURL = mManhuaPictures.get(position).getmImageUrl();
+		//加载图片资源
+		loadBitmaps(zoomImageView, imageURL);
+		return zoomImageView;
 	}
 	
-	class ViewHolder {
-		ImageView imageView = null;
-	}
+	
+	
+	
 	
 
-	/**
-	 * 将一张图片存储到LruCache中。
-	 * 形参 key:LruCache的键，这里传入图片的URL地址。
-	 * 形参 bitmap:LruCache的键，这里传入从网络上下载的Bitmap对象。
-	 */
-	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-		if (getBitmapFromMemoryCache(key) == null) {
-			mMemoryCache.put(key, bitmap);
-		}
+	@Override
+	public void destroyItem(ViewGroup container, int position, Object object) {
+		container.removeView(mImageViews[position]);
 	}
-
-	/**
-	 * 从LruCache中获取一张图片，如果不存在就返回null。
-	 * 形参 key:LruCache的键，这里传入图片的URL地址。
-	 * 返回值:对应传回键的Bitmap对象，或者返回null。
-	 */
-	public Bitmap getBitmapFromMemoryCache(String key) {
-		return mMemoryCache.get(key);
-	}
-
-	/**
-	 * 加载Bitmap对象。此方法会在LruCache中检查所有屏幕中可见的ImageView的Bitmap对象，
-	 * 如果发现任何一个ImageView的Bitmap对象不在缓存中，就会开启异步线程去下载图片。
-	 */
-	public void loadBitmaps(ImageView imageView, String imageUrl) {
-		try {
-			Bitmap bitmap = getBitmapFromMemoryCache(imageUrl);
-			if (bitmap == null) { //如果内存中没有那张图片
-				BitmapWorkerTask task = new BitmapWorkerTask();
-				taskCollection.add(task);
-				task.execute(imageUrl);
-			} 
-			else if (imageView != null && bitmap != null) { //如果内存中有那张图片
-				imageView.setImageBitmap(bitmap);
-				Log.d("TEST1", "内存中有");
-			}
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	
-	/**
-	 * 取消所有正在下载或等待下载的任务。
-	 */
-	public void cancelAllTasks() {
-		if (taskCollection != null) {
-			for (BitmapWorkerTask task : taskCollection) {
-				task.cancel(false);
-			}
-		}
-	}
+	
+	
+	
 
+	@Override
+	public int getCount() {
+		return mManhuaPictures.size();
+	}
+	
+	
+	
+	
+
+	@Override
+	public boolean isViewFromObject(View arg0, Object arg1) {
+		return arg0 == arg1;
+	}
+	
+	
+	
+	
 	
 	/**
 	 * 根据传入的uniqueName获取硬盘缓存的路径地址。
@@ -219,7 +140,11 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		}
 		return new File(cachePath + File.separator + uniqueName);
 	}
-
+	
+	
+	
+	
+	
 	
 	/**
 	 * 获取当前应用程序的版本号。
@@ -234,19 +159,49 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		}
 		return 1;
 	}
-
+	
+	
+	
+	
+	
 	
 	/**
-	 * 设置item子项的高度。
+	 * 加载Bitmap对象。此方法会在LruCache中检查所有屏幕中可见的ImageView的Bitmap对象，
+	 * 如果发现任何一个ImageView的Bitmap对象不在缓存中，就会开启异步线程去下载图片。
 	 */
-	public void setItemHeight(int height) {
-		if (height == mItemHeight) {
-			return;
+	public void loadBitmaps(ImageView imageView, String imageUrl) {
+		try {
+			Bitmap bitmap = getBitmapFromMemoryCache(imageUrl);
+			if (bitmap == null) { //如果内存中没有那张图片
+				BitmapWorkerTask task = new BitmapWorkerTask();
+				taskCollection.add(task);
+				task.execute(imageUrl);
+			} 
+			else if (imageView != null && bitmap != null) { //如果内存中有那张图片
+				imageView.setImageBitmap(bitmap);
+			}
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
 		}
-		mItemHeight = height;
-		notifyDataSetChanged();
 	}
-
+	
+	
+	
+	
+	
+	/**
+	 * 从LruCache中获取一张图片，如果不存在就返回null。
+	 * 形参 key:LruCache的键，这里传入图片的URL地址。
+	 * 返回值:对应传回键的Bitmap对象，或者返回null。
+	 */
+	public Bitmap getBitmapFromMemoryCache(String key) {
+		return mMemoryCache.get(key);
+	}
+	
+	
+	
+	
 	
 	/**
 	 * 使用MD5算法对传入的key进行加密并返回。
@@ -264,20 +219,9 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 	}
 	
 	
-	/**
-	 * 将缓存记录同步到journal文件中。
-	 */
-	public void fluchCache() {
-		if (mDiskLruCache != null) {
-			try {
-				mDiskLruCache.flush();
-			} 
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
+	
+	
+	
 	private String bytesToHexString(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < bytes.length; i++) {
@@ -289,7 +233,26 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		}
 		return sb.toString();
 	}
-
+	
+	
+	
+	
+	
+	/**
+	 * 将一张图片存储到LruCache中。
+	 * 形参 key:LruCache的键，这里传入图片的URL地址。
+	 * 形参 bitmap:LruCache的键，这里传入从网络上下载的Bitmap对象。
+	 */
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (getBitmapFromMemoryCache(key) == null) {
+			mMemoryCache.put(key, bitmap);
+		}
+	}
+	
+	
+	
+	
+	
 	
 	/**
 	 * 异步下载图片的任务。
@@ -328,9 +291,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 					// 缓存被写入后，再次查找key对应的缓存
 					snapShot = mDiskLruCache.get(key);
 				}
-				else {
-					Log.d("TEST3", "从硬盘加载图片");
-				}
+				
 				if (snapShot != null) {
 					fileInputStream = (FileInputStream) snapShot.getInputStream(0);
 					fileDescriptor = fileInputStream.getFD();
@@ -372,7 +333,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		protected void onPostExecute(Bitmap bitmap) {
 			super.onPostExecute(bitmap);
 			// 根据Tag找到相应的ImageView控件，将下载好的图片显示出来。
-			ImageView imageView = (ImageView) mPhotoWall.findViewWithTag(imageUrl);
+			ImageView imageView = (ImageView) mViewPager.findViewWithTag(imageUrl);
 			if (imageView != null && bitmap != null) {
 				imageView.setImageBitmap(bitmap);
 			}
@@ -389,7 +350,6 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		 * 返回值:下载写入Stream成功还是失败
 		 */
 		private boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
-			Log.d("TEST2", "从网络加载图片");
 			HttpURLConnection urlConnection = null;
 			BufferedOutputStream out = null;
 			BufferedInputStream in = null;
@@ -426,5 +386,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		}
 
 	}
+	
+	
 
 }
