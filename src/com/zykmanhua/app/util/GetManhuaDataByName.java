@@ -14,21 +14,20 @@ import com.thinkland.sdk.android.JuheData;
 import com.thinkland.sdk.android.Parameters;
 import com.zykmanhua.app.bean.Manhua;
 
-public class GetManhuaDataByType {
+public class GetManhuaDataByName {
 	
 	private Context mContext = null;
 	private Handler mHandler = null;
 	
-	public GetManhuaDataByType(Context context , Handler handler) {
+	public GetManhuaDataByName(Context context , Handler handler) {
 		mContext = context;
 		mHandler = handler;
 	}
 	
-	public void getManhuaBook(final String manhuaType , final int skipNumber) {
+	public void getManhuaBook(final String manhuaName) {
 		Parameters parameters = new Parameters();
 		parameters.add(Config.KEY, Config.APP_KEY);
-		parameters.add(Config.KEY_Type, manhuaType);
-		parameters.add(Config.KEY_SKIP, skipNumber);
+		parameters.add(Config.KEY_Name, manhuaName);
 		
 		JuheData.executeWithAPI(
 				mContext, 

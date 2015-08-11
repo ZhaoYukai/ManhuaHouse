@@ -51,6 +51,7 @@ public class SecondTab extends Fragment {
 						intent.putExtra(Config.KEY_ManhuaType, manhua.getmType());
 						intent.putExtra(Config.KEY_ManhuaLastUpdate, manhua.getmLastUpdate());
 						intent.putExtra(Config.KEY_ManhuaIsFinish, manhua.ismFinish());
+						intent.putExtra(Config.KEY_CoverImg , manhua.getmCoverImg());
 						startActivity(intent);
 					}
 				});

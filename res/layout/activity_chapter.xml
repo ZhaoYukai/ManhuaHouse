@@ -1,49 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:topbarcustom="http://schemas.android.com/apk/res/com.zykmanhua.app"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <com.zykmanhua.app.util.Topbar
+        android:id="@+id/id_topBar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        topbarcustom:leftText="Back"
+        topbarcustom:leftBackground="@drawable/blue_button"
+        topbarcustom:leftTextColor="#FFFFFF"
+        topbarcustom:rightBackground="@drawable/blue_button"
+        topbarcustom:rightText="More"
+        topbarcustom:rightTextColor="#FFFFFF"
+        topbarcustom:title="自定义标题"
+        topbarcustom:titleTextColor="#123412"
+        topbarcustom:titleTextSize="5sp" >
+    </com.zykmanhua.app.util.Topbar>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
         android:background="#44ff00ff"
-        android:orientation="vertical" >
+        android:orientation="horizontal"
+        android:padding="10dp" >
 
-        <TextView
-            android:id="@+id/id_chapter_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:text="name" />
+        <ImageView
+            android:id="@+id/id_manhua_chapter_Cover"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:src="@drawable/empty_photo" />
 
-        <TextView
-            android:id="@+id/id_chapter_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:text="type" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="10dp" >
 
-        <TextView
-            android:id="@+id/id_chapter_isFinish"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:text="isFinish" />
+            <TextView
+                android:id="@+id/id_chapter_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxLines="1"
+                android:text="name"
+                android:textSize="30sp" />
 
-        <TextView
-            android:id="@+id/id_chapter_lastupdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:text="lastupdate" />
+            <TextView
+                android:id="@+id/id_chapter_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxLines="1"
+                android:text="type"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/id_chapter_isFinish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxLines="1"
+                android:text="isFinish"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/id_chapter_lastupdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:maxLines="1"
+                android:text="lastupdate"
+                android:textSize="15sp" />
+        </LinearLayout>
     </LinearLayout>
-    
+
     <ListView
         android:id="@+id/id_listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" >
     </ListView>
 
 </LinearLayout>

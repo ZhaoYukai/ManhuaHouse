@@ -2,7 +2,7 @@ package com.zykmanhua.app.util;
 
 public class Config {
 	
-	public static final String APP_KEY = "3c26f9550893de6a25fdbbd31cc0604b";
+	public static final String APP_KEY = "";
 	public static final int APP_ID = 163;
 	
 	public static final String JSON_error_code = "error_code";
@@ -36,6 +36,10 @@ public class Config {
 	public static final String KEY_ManhuaLastUpdate = "ManhuaLastUpdate";
 	public static final String KEY_ManhuaIsFinish = "ManhuaIsFinish";
 	public static final String KEY_ChapterId = "ChapterId";
+	public static final String KEY_CoverImg = "ManhuaCover";
+	public static final String KEY_ManhuaChapterName = "ManhuaChapterName";
+	public static final String KEY_Name = "name";
+	public static final String KEY_Type = "type";
 	
 	
 	public static final int RESULT_SUCCESS_CODE = 0x01;
@@ -44,6 +48,10 @@ public class Config {
 	public static final int STATUS_CODE_SUCCESS = 200;
 	public static final int STATUS_CODE_NO_NETWORK = 30002;
 	public static final int STATUS_CODE_NO_INIT = 30003;
+	
+	public static final String Disk_Route_PhotoWall = "bitmap";
+	public static final String Disk_Route_Chapter = "bitmap2";
+	public static final String Disk_Route_Content = "bitmap3";
 	
 	
 	

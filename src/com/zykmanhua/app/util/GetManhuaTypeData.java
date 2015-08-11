@@ -7,7 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
 
 import com.thinkland.sdk.android.DataCallBack;
 import com.thinkland.sdk.android.JuheData;
@@ -17,15 +18,17 @@ import com.zykmanhua.app.bean.ManhuaType;
 public class GetManhuaTypeData {
 	
 	private Context mContext = null;
+	private Handler mHandler = null;
 	
-	public GetManhuaTypeData(Context context) {
+	public GetManhuaTypeData(Context context , Handler handler) {
 		mContext = context;
+		mHandler = handler;
 	}
 	
 	public void getManhuaType() {
 		
 		Parameters parameters = new Parameters();
-		parameters.add("key", Config.APP_KEY);
+		parameters.add(Config.KEY, Config.APP_KEY);
 		
 		JuheData.executeWithAPI(
 				mContext, 
@@ -36,7 +39,17 @@ public class GetManhuaTypeData {
 				new DataCallBack() {
 					@Override
 					public void onSuccess(int statusCode, String responseString) {
-						ArrayList<ManhuaType> manhuaTypeList = parseJSON(responseString);
+						if(statusCode == Config.STATUS_CODE_SUCCESS) {
+							ArrayList<ManhuaType> manhuaTypeList = parseJSON(responseString);
+							if(manhuaTypeList != null && mHandler != null) {
+								Message msg = Message.obtain(mHandler , Config.RESULT_SUCCESS_CODE , manhuaTypeList);
+								msg.sendToTarget();
+							}
+						}
+						else {
+							Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
+							msg.sendToTarget();
+						}
 					}
 					
 					@Override
@@ -46,7 +59,8 @@ public class GetManhuaTypeData {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						
+						Message msg = Message.obtain(mHandler, Config.RESULT_FAIL_CODE, statusCode + ":" + throwable.getMessage());
+						msg.sendToTarget();
 					}
 				});
 		
@@ -55,7 +69,6 @@ public class GetManhuaTypeData {
 	
 	
 	/**
-	 * 对收到的json回应字符串进行解析
 	 */
 	private ArrayList<ManhuaType> parseJSON(String responseString) {
 		
@@ -66,7 +79,6 @@ public class GetManhuaTypeData {
 			int code = jsonObject.getInt(Config.JSON_error_code);
 			
 			if(code == 0) {
-				//如果代码是0，表示服务器返回数据是成功的
 				manhuaTypeList = new ArrayList<ManhuaType>();
 				JSONArray jsonArray = jsonObject.getJSONArray(Config.JSON_result);
 				int arrLength = jsonArray.length();

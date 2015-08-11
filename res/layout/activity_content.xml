@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:topbarcustom="http://schemas.android.com/apk/res/com.zykmanhua.app"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
     android:orientation="vertical" >
-    
+
+    <com.zykmanhua.app.util.Topbar
+        android:id="@+id/id_content_topBar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        topbarcustom:leftBackground="@drawable/blue_button"
+        topbarcustom:leftText="Back"
+        topbarcustom:leftTextColor="#FFFFFF"
+        topbarcustom:rightBackground="@drawable/blue_button"
+        topbarcustom:rightText="More"
+        topbarcustom:rightTextColor="#FFFFFF"
+        topbarcustom:title="自定义标题"
+        topbarcustom:titleTextColor="#123412"
+        topbarcustom:titleTextSize="5sp" >
+    </com.zykmanhua.app.util.Topbar>
+
     <android.support.v4.view.ViewPager
         android:id="@+id/id_content_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    
 
 </LinearLayout>

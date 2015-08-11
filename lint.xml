@@ -6,8 +6,12 @@
     <issue id="HandlerLeak">
         <ignore path="src/com/zykmanhua/app/activity/ChapterActivity.java" />
         <ignore path="src/com/zykmanhua/app/activity/ContentActivity.java" />
+        <ignore path="src/com/zykmanhua/app/activity/FifthTab.java" />
         <ignore path="src/com/zykmanhua/app/activity/FirstTab.java" />
+        <ignore path="src/com/zykmanhua/app/activity/ForthTab.java" />
+        <ignore path="src/com/zykmanhua/app/activity/SearchActivity.java" />
         <ignore path="src/com/zykmanhua/app/activity/SecondTab.java" />
+        <ignore path="src/com/zykmanhua/app/activity/ThirdTab.java" />
     </issue>
     <issue id="InflateParams">
         <ignore path="src/com/zykmanhua/app/adapter/ChapterAdapter.java" />

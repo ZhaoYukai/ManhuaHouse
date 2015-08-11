@@ -71,6 +71,7 @@ public class FirstTab extends Fragment {
 						intent.putExtra(Config.KEY_ManhuaType, manhua.getmType());
 						intent.putExtra(Config.KEY_ManhuaLastUpdate, manhua.getmLastUpdate());
 						intent.putExtra(Config.KEY_ManhuaIsFinish, manhua.ismFinish());
+						intent.putExtra(Config.KEY_CoverImg , manhua.getmCoverImg());
 						startActivity(intent);
 					}
 				});
@@ -126,7 +127,7 @@ public class FirstTab extends Fragment {
 	@Override
 	public void onPause() {
 		super.onPause();
-		mPhotoWallAdapter.fluchCache();
+		//mPhotoWallAdapter.fluchCache();
 	}
 	
 	

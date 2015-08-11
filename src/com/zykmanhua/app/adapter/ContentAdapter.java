@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -16,7 +17,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.zykmanhua.app.R;
+import com.zykmanhua.app.adapter.ManhuaTypeAdapter.BitmapWorkerTask;
 import com.zykmanhua.app.bean.ManhuaPicture;
+import com.zykmanhua.app.util.Config;
 import com.zykmanhua.app.util.DiskLruCache;
 import com.zykmanhua.app.util.ZoomImageView;
 import com.zykmanhua.app.util.DiskLruCache.Snapshot;
@@ -30,6 +33,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,11 +52,16 @@ public class ContentAdapter extends PagerAdapter {
 	private DiskLruCache mDiskLruCache = null;
 	private ViewPager mViewPager = null;
 	
+	//只创建一个图片下载线程的标示
+	private String[] arrImgUrl = null;
+	private int imgCount = 0;
+	
 	
 
 	public ContentAdapter(Context context, List<ManhuaPicture> manhuaPictures , ViewPager viewPager) {
 		mContext = context;
 		mManhuaPictures = manhuaPictures;
+		arrImgUrl = new String[mManhuaPictures.size()];
 		mViewPager = viewPager;
 		mImageViews = new ImageView[getCount()];
 		taskCollection = new HashSet<BitmapWorkerTask>();
@@ -68,7 +77,7 @@ public class ContentAdapter extends PagerAdapter {
 		};
 		try {
 			// 获取图片缓存路径
-			File cacheDir = getDiskCacheDir(context, "bitmap");
+			File cacheDir = getDiskCacheDir(context, Config.Disk_Route_Content);
 			if (!cacheDir.exists()) {
 				cacheDir.mkdirs();
 			}
@@ -171,11 +180,30 @@ public class ContentAdapter extends PagerAdapter {
 	 */
 	public void loadBitmaps(ImageView imageView, String imageUrl) {
 		try {
+			//先从内存中取出图片
 			Bitmap bitmap = getBitmapFromMemoryCache(imageUrl);
 			if (bitmap == null) { //如果内存中没有那张图片
-				BitmapWorkerTask task = new BitmapWorkerTask();
-				taskCollection.add(task);
-				task.execute(imageUrl);
+				//就从硬盘中去加载图片
+				String key = hashKeyForDisk(imageUrl);
+				DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+				if(snapshot != null) { //如果硬盘中有这个缓存，就直接加载
+					InputStream is = snapshot.getInputStream(0);
+					Bitmap tmpBitmap = BitmapFactory.decodeStream(is);
+					imageView.setImageBitmap(tmpBitmap);
+				}
+				else { //如果连硬盘中都没有，再去开启异步任务去下载
+					//一张陌生的图片只需要创建一个线程去下载即可，这里就是根据图片的URL只创建一个线程去下载
+					for(int i = 0 ; i < arrImgUrl.length ; i++) {
+						if(imageUrl.equals(arrImgUrl[i])) {
+							return ;
+						}
+					}
+					arrImgUrl[imgCount++] = imageUrl;
+					
+					BitmapWorkerTask task = new BitmapWorkerTask(); //就开始执行异步任务
+					taskCollection.add(task);
+					task.execute(imageUrl);
+				}
 			} 
 			else if (imageView != null && bitmap != null) { //如果内存中有那张图片
 				imageView.setImageBitmap(bitmap);
@@ -288,6 +316,8 @@ public class ContentAdapter extends PagerAdapter {
 							editor.abort();
 						}
 					}
+					//刷新一下
+					mDiskLruCache.flush();
 					// 缓存被写入后，再次查找key对应的缓存
 					snapShot = mDiskLruCache.get(key);
 				}

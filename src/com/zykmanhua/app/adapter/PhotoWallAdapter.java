@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import com.zykmanhua.app.R;
 import com.zykmanhua.app.bean.Manhua;
+import com.zykmanhua.app.util.Config;
 import com.zykmanhua.app.util.DiskLruCache;
 import com.zykmanhua.app.util.DiskLruCache.Snapshot;
 
@@ -57,6 +59,10 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 	private int mItemHeight = 0;
 	
 	private LayoutInflater mLayoutInflater = null;
+	
+	//只创建一个图片下载线程的标示
+	private String[] arrImgUrl = null;
+	private int imgCount = 0;
 
 	
 	/**
@@ -68,6 +74,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		mLayoutInflater = LayoutInflater.from(context);
 		mPhotoWall = photoWall;
 		taskCollection = new HashSet<BitmapWorkerTask>();
+		arrImgUrl = new String[manhuas.size()];
 		
 		// 获取应用程序最大可用内存
 		int maxMemory = (int) Runtime.getRuntime().maxMemory();
@@ -83,7 +90,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		
 		try {
 			// 获取图片缓存路径
-			File cacheDir = getDiskCacheDir(context, "bitmap");
+			File cacheDir = getDiskCacheDir(context, Config.Disk_Route_PhotoWall);
 			if (!cacheDir.exists()) {
 				cacheDir.mkdirs();
 			}
@@ -102,29 +109,6 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-
-		Manhua manhua = getItem(position);
-		View view = null;
-		
-		if (convertView == null) {
-			view = mLayoutInflater.inflate(R.layout.photo_layout, null);
-		} 
-		else {
-			view = convertView;
-		}
-		
-		ImageView imageView = (ImageView) view.findViewById(R.id.id_photo);
-		if (imageView.getLayoutParams().height != mItemHeight) {
-			imageView.getLayoutParams().height = mItemHeight;
-		}
-		
-		// 给ImageView设置一个Tag，保证异步加载图片时不会乱序
-		imageView.setTag(manhua.getmCoverImg());
-		//imageView.setImageResource(R.drawable.empty_photo);
-		loadBitmaps(imageView, manhua.getmCoverImg());
-		return view;
-
-		/*
 		Manhua manhua = getItem(position);
 		String imageUrl = manhua.getmCoverImg();
 		ViewHolder viewHolder = null;
@@ -132,18 +116,19 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 			viewHolder = new ViewHolder();
 			convertView = mLayoutInflater.inflate(R.layout.photo_layout, null);
 			viewHolder.imageView = (ImageView) convertView.findViewById(R.id.id_photo);
-			if(viewHolder.imageView.getLayoutParams().height != mItemHeight) {
-				viewHolder.imageView.getLayoutParams().height = mItemHeight;
-			}
 			convertView.setTag(viewHolder);
 		}
 		else {
 			viewHolder = (ViewHolder) convertView.getTag();
+			viewHolder.imageView.setImageResource(R.drawable.empty_photo);
+		}
+		if(viewHolder.imageView.getLayoutParams().height != mItemHeight) {
+			viewHolder.imageView.getLayoutParams().height = mItemHeight;
 		}
 		viewHolder.imageView.setTag(imageUrl);
 		loadBitmaps(viewHolder.imageView, imageUrl);
 		return convertView;
-		*/
+		
 	}
 	
 	class ViewHolder {
@@ -177,15 +162,33 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 	 */
 	public void loadBitmaps(ImageView imageView, String imageUrl) {
 		try {
+			//先从内存中取出图片
 			Bitmap bitmap = getBitmapFromMemoryCache(imageUrl);
 			if (bitmap == null) { //如果内存中没有那张图片
-				BitmapWorkerTask task = new BitmapWorkerTask();
-				taskCollection.add(task);
-				task.execute(imageUrl);
+				//就从硬盘中去加载图片
+				String key = hashKeyForDisk(imageUrl);
+				DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+				if(snapshot != null) { //如果硬盘中有这个缓存，就直接加载
+					InputStream is = snapshot.getInputStream(0);
+					Bitmap tmpBitmap = BitmapFactory.decodeStream(is);
+					imageView.setImageBitmap(tmpBitmap);
+				}
+				else { //如果连硬盘中都没有，再去开启异步任务去下载
+					//一张陌生的图片只需要创建一个线程去下载即可，这里就是根据图片的URL只创建一个线程去下载
+					for(int i = 0 ; i < arrImgUrl.length ; i++) {
+						if(imageUrl.equals(arrImgUrl[i])) {
+							return ;
+						}
+					}
+					arrImgUrl[imgCount++] = imageUrl;
+					
+					BitmapWorkerTask task = new BitmapWorkerTask(); //就开始执行异步任务
+					taskCollection.add(task);
+					task.execute(imageUrl);
+				}
 			} 
 			else if (imageView != null && bitmap != null) { //如果内存中有那张图片
 				imageView.setImageBitmap(bitmap);
-				Log.d("TEST1", "内存中有");
 			}
 		} 
 		catch (Exception e) {
@@ -325,12 +328,12 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 							editor.abort();
 						}
 					}
+					//刷新一下
+					mDiskLruCache.flush();
 					// 缓存被写入后，再次查找key对应的缓存
 					snapShot = mDiskLruCache.get(key);
 				}
-				else {
-					Log.d("TEST3", "从硬盘加载图片");
-				}
+
 				if (snapShot != null) {
 					fileInputStream = (FileInputStream) snapShot.getInputStream(0);
 					fileDescriptor = fileInputStream.getFD();
@@ -389,7 +392,6 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		 * 返回值:下载写入Stream成功还是失败
 		 */
 		private boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
-			Log.d("TEST2", "从网络加载图片");
 			HttpURLConnection urlConnection = null;
 			BufferedOutputStream out = null;
 			BufferedInputStream in = null;
