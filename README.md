@@ -2,13 +2,13 @@
 <br>
 【Android项目】在线观看漫画的App，使用聚合数据提供的“漫画书”相关的API接口<br>
 <br>
-本项目的聚合数据 openid 和 key 不提供，可以去聚合数据自己申请漫画书的SDK。<br>
+####本项目的聚合数据 openid 和 key 不提供，可以去聚合数据自己申请漫画书的SDK。<br>
 <br>
 本项目由于用到了TabPageIndicator，所以需要引入一个名叫viewPagerlibrary的外部库<br>
 项目地址为：https://github.com/ZhaoYukai/viewPagerlibrary<br>
 把该项目import进Eclipse后，按照图示配置即可。<br>
 <br>
-本项目涉及的知识点：<br>
+####本项目涉及的知识点：<br>
 <br>
 （1）使用TabPageIndicator + ViewPager实现顶部Tab滑动切换效果。<br>
 <br>
@@ -36,13 +36,13 @@ Universal-Image-Loader不仅实现了上面所说的三级缓存，而且对内�
 （5）ListView使用了convertView + ViewHolder的方法提升了性能。<br>
 <br>
 <br>
-后期需要优化的地方：<br>
+####后期需要优化的地方：<br>
 （1）加入本地文件缓存的机制；<br>
 （2）添加“软件设置”界面；<br>
 （3）添加用户登录功能，再次基础上增加“收藏”和“上次阅读位置”功能；<br>
 （4）尝试移除推荐部分的“照片墙”效果，使用瀑布流<br>
 <br>
-下面是软件的截图：<br>
+####下面是软件的截图：<br>
 <br>
 <br>
 ![image](https://github.com/ZhaoYukai/ManhuaHouse/blob/master/%E7%A4%BA%E4%BE%8B%E5%9B%BE%E7%89%87/01.jpeg)
