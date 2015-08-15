@@ -59,7 +59,7 @@ public class GetManhuaDataByType {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						Message msg = Message.obtain(mHandler, Config.RESULT_FAIL_CODE, statusCode + ":" + throwable.getMessage());
+						Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
 						msg.sendToTarget();
 					}
 				});
@@ -95,6 +95,10 @@ public class GetManhuaDataByType {
 					manhua.setmCoverImg(dataElement.getString(Config.JSON_coverImg));
 					manhuaList.add(manhua);
 				}
+			}
+			else {
+				Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , code);
+				msg.sendToTarget();
 			}
 		} 
 		catch (Exception e) {

@@ -2,6 +2,7 @@ package com.zykmanhua.app.bean;
 
 public class ManhuaContent {
 	
+	private int mTotal;
 	private String mName = null;
 	private String mChapterName = null;
 	private int mChapterId;
@@ -15,6 +16,12 @@ public class ManhuaContent {
 	}
 	public String getmChapterName() {
 		return mChapterName;
+	}
+	public int getmTotal() {
+		return mTotal;
+	}
+	public void setmTotal(int mTotal) {
+		this.mTotal = mTotal;
 	}
 	public void setmChapterName(String mChapterName) {
 		this.mChapterName = mChapterName;

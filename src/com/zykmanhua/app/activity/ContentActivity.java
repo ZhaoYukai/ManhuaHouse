@@ -39,9 +39,31 @@ public class ContentActivity extends Activity {
 				mContentAdapter = new ContentAdapter(mContext, mManhuaPictures,mViewPager);
 				mViewPager.setAdapter(mContentAdapter);
 				break;
+			case Config.RESULT_FAIL_CODE:
+				int errorCode = (Integer) msg.obj;
+				showToast(errorCode);
+				break;
 			}
 		};
 	};
+	
+	
+	private void showToast(int errorCode) {
+		switch (errorCode) {
+		case Config.STATUS_CODE_NO_NETWORK:
+			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_INIT:
+			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_FIND_INFORMATION:
+			Toast.makeText(mContext, errorCode + " : 没有找到对应信息", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			break;
+		}
+	}
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

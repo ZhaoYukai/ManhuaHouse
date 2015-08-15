@@ -118,7 +118,7 @@ public class ZoomImageView extends ImageView implements OnGlobalLayoutListener, 
 			}
 			int drawableWidth = drawable.getIntrinsicWidth();
 			int drawableHeight = drawable.getIntrinsicHeight();
-			
+						
 			//下面进行缩放
 			float scale = 1.0f;
 			if(drawableWidth > width && drawableHeight < height) { //如果图片很宽，但高度低
@@ -377,8 +377,8 @@ public class ZoomImageView extends ImageView implements OnGlobalLayoutListener, 
 		
 		return true;
 	}
-
 	
+
 	
 	/**
 	 * 控制平移图片的边界

@@ -17,9 +17,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.Toast;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 public class ThirdTab extends Fragment {
 	
@@ -29,18 +32,63 @@ public class ThirdTab extends Fragment {
 	private ManhuaTypeAdapter mManhuaTypeAdapter = null;
 	private ListView mListView = null;
 	
+	private int mlastVisibleItem;
+	private int mtotalItemCount;
+	private boolean mFirst = true;
+	
+	
 	public ThirdTab() {
 		// TODO Auto-generated constructor stub
 	}
+	
 	
 	Handler mHandler = new Handler() {
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case Config.RESULT_SUCCESS_CODE:
-				mManhuas = (ArrayList<Manhua>) msg.obj;
+				if(mFirst == true) {
+					mManhuas = (ArrayList<Manhua>) msg.obj;
+					mFirst = false;
+				}
+				else {
+					ArrayList<Manhua> tmp = new ArrayList<Manhua>();
+					tmp = (ArrayList<Manhua>) msg.obj;
+					for(Manhua m : tmp) {
+						mManhuas.add(m);
+					}
+					mManhuaTypeAdapter.notifyDataSetChanged();
+					return;
+				}
 				mManhuaTypeAdapter = new ManhuaTypeAdapter(mContext, mManhuas, mListView);
 				mListView.setAdapter(mManhuaTypeAdapter);
+				
+				mListView.setOnScrollListener(new OnScrollListener() {
+					@Override
+					public void onScrollStateChanged(AbsListView view, int scrollState) {
+						if (mtotalItemCount == mlastVisibleItem && scrollState == SCROLL_STATE_IDLE) {
+							loadData();
+						}
+					}
+					
+					private void loadData() {
+						Handler handler = new Handler();
+						handler.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								int count = mManhuas.size() + 1;
+								getManhuaDataByType.getManhuaBook("少年漫画", count);
+							}
+						}, 500);
+					}
+
+					@Override
+					public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+						mlastVisibleItem = firstVisibleItem + visibleItemCount;
+						mtotalItemCount = totalItemCount;
+					}
+				});
+				
 				mListView.setOnItemClickListener(new OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -55,9 +103,32 @@ public class ThirdTab extends Fragment {
 					}
 				});
 				break;
+			case Config.RESULT_FAIL_CODE:
+				int errorCode = (Integer) msg.obj;
+				showToast(errorCode);
+				break;
 			}
 		};
+		
 	};
+	
+	
+	private void showToast(int errorCode) {
+		switch (errorCode) {
+		case Config.STATUS_CODE_NO_NETWORK:
+			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_INIT:
+			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_FIND_INFORMATION:
+			Toast.makeText(mContext, errorCode + " : 没有找到对应信息", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			break;
+		}
+	}
+	
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -68,8 +139,10 @@ public class ThirdTab extends Fragment {
 		mListView = (ListView) view.findViewById(R.id.id_listView);
 		getManhuaDataByType = new GetManhuaDataByType(mContext, mHandler);
 		getManhuaDataByType.getManhuaBook("少年漫画", 1);
-		return view;
 		
+		return view;
 	}
 
+
 }
+

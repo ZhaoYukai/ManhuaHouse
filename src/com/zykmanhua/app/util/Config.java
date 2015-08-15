@@ -2,7 +2,7 @@ package com.zykmanhua.app.util;
 
 public class Config {
 	
-	public static final String APP_KEY = "";
+	public static final String APP_KEY = "Äã×Ô¼ºµÄapp key";
 	public static final int APP_ID = 163;
 	
 	public static final String JSON_error_code = "error_code";
@@ -20,6 +20,7 @@ public class Config {
 	public static final String JSON_imageList = "imageList";
 	public static final String JSON_chapterId = "chapterId";
 	public static final String JSON_imageUrl = "imageUrl";
+	public static final String JSON_total = "total";
 	
 	public static final String URL_MANHUA_TYPE = "http://japi.juhe.cn/comic/category";
 	public static final String URL_MANHUA_BOOK = "http://japi.juhe.cn/comic/book";
@@ -48,6 +49,7 @@ public class Config {
 	public static final int STATUS_CODE_SUCCESS = 200;
 	public static final int STATUS_CODE_NO_NETWORK = 30002;
 	public static final int STATUS_CODE_NO_INIT = 30003;
+	public static final int STATUS_CODE_NO_FIND_INFORMATION = 216301;
 	
 	public static final String Disk_Route_PhotoWall = "bitmap";
 	public static final String Disk_Route_Chapter = "bitmap2";

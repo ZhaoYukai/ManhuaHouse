@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class SearchActivity extends Activity {
@@ -62,9 +63,30 @@ public class SearchActivity extends Activity {
 					}
 				});
 				break;
+			case Config.RESULT_FAIL_CODE:
+				int errorCode = (Integer) msg.obj;
+				showToast(errorCode);
+				break;
 			}
 		};
 	};
+	
+	
+	private void showToast(int errorCode) {
+		switch (errorCode) {
+		case Config.STATUS_CODE_NO_NETWORK:
+			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_INIT:
+			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_FIND_INFORMATION:
+			Toast.makeText(mContext, errorCode + " : 没有找到对应信息", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			break;
+		}
+	}
 	
 	
 	

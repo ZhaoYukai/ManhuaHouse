@@ -14,6 +14,8 @@
         <ignore path="src/com/zykmanhua/app/activity/ThirdTab.java" />
     </issue>
     <issue id="InflateParams">
+        <ignore path="src/com/zykmanhua/app/activity/ChapterActivity.java" />
+        <ignore path="src/com/zykmanhua/app/activity/SecondTab.java" />
         <ignore path="src/com/zykmanhua/app/adapter/ChapterAdapter.java" />
         <ignore path="src/com/zykmanhua/app/adapter/ManhuaTypeAdapter.java" />
         <ignore path="src/com/zykmanhua/app/adapter/PhotoWallAdapter.java" />

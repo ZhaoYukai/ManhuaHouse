@@ -59,7 +59,7 @@ public class GetManhuaTypeData {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						Message msg = Message.obtain(mHandler, Config.RESULT_FAIL_CODE, statusCode + ":" + throwable.getMessage());
+						Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
 						msg.sendToTarget();
 					}
 				});
@@ -90,7 +90,10 @@ public class GetManhuaTypeData {
 				}
 				
 			}
-			
+			else {
+				Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , code);
+				msg.sendToTarget();
+			}
 		} 
 		catch (JSONException e) {
 			e.printStackTrace();

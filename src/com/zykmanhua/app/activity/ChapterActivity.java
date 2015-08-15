@@ -1,35 +1,31 @@
 package com.zykmanhua.app.activity;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.zykmanhua.app.R;
 import com.zykmanhua.app.adapter.ChapterAdapter;
 import com.zykmanhua.app.bean.ManhuaContent;
 import com.zykmanhua.app.util.Config;
-import com.zykmanhua.app.util.DiskLruCache;
 import com.zykmanhua.app.util.GetManhuaChapterByName;
 import com.zykmanhua.app.util.Topbar;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -37,6 +33,7 @@ import android.widget.Toast;
 
 public class ChapterActivity extends Activity {
 	
+	private View mFooter = null;
 	private TextView mTV_name = null;
 	private TextView mTV_type = null;
 	private TextView mTV_lastUpdate = null;
@@ -49,14 +46,19 @@ public class ChapterActivity extends Activity {
 	private String mManhuaCover = null;
 	private int mManhuaLastUpdate;
 	private boolean mManhuaIsFinish;
+	private int mlastVisibleItem;
+	private int mtotalItemCount;
+	private int mfirstVisibleItem;
+	private boolean mFirst = true;
+	private int mtotalCount;
 	
 	private List<ManhuaContent> mManhuaContents = null;
 	private GetManhuaChapterByName getManhuaChapterByName = null;
 	private Context mContext = null;
 	private ChapterAdapter mAdapter = null;
 	
-	// 图片硬盘缓存核心类。
-	private DiskLruCache mDiskLruCache = null;
+	private ImageLoader mImageLoader = null;
+	private DisplayImageOptions mOptions = null;
 	
 	
 	
@@ -67,15 +69,47 @@ public class ChapterActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case Config.RESULT_SUCCESS_CODE:
-				mManhuaContents = (List<ManhuaContent>) msg.obj;
+				if(mFirst == true) {
+					mManhuaContents = (List<ManhuaContent>) msg.obj;
+					mtotalCount = mManhuaContents.get(0).getmTotal();
+					mFirst = false;
+				}
+				else {
+					List<ManhuaContent> tmp = new ArrayList<ManhuaContent>();
+					tmp = (List<ManhuaContent>) msg.obj;
+					for(ManhuaContent m : tmp) {
+						mManhuaContents.add(m);
+					}
+					mAdapter.notifyDataSetChanged();
+					return;
+				}
 				mAdapter = new ChapterAdapter(mContext, mManhuaContents);
 				mListView.setAdapter(mAdapter);
 				break;
 			case Config.RESULT_FAIL_CODE:
+				int errorCode = (Integer) msg.obj;
+				showToast(errorCode);
 				break;
 			}
 		};
 	};
+	
+	
+	private void showToast(int errorCode) {
+		switch (errorCode) {
+		case Config.STATUS_CODE_NO_NETWORK:
+			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_INIT:
+			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();
+			break;
+		case Config.STATUS_CODE_NO_FIND_INFORMATION:
+			Toast.makeText(mContext, errorCode + " : 没有找到对应信息", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			break;
+		}
+	}
 	
 	
 	@Override
@@ -83,6 +117,7 @@ public class ChapterActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chapter);
 		
+		mContext = ChapterActivity.this;
 		mManhuaName = getIntent().getStringExtra(Config.KEY_ManhuaName);
 		mManhuaType = getIntent().getStringExtra(Config.KEY_ManhuaType);
 		mManhuaLastUpdate = getIntent().getIntExtra(Config.KEY_ManhuaLastUpdate, 19910220);
@@ -91,24 +126,18 @@ public class ChapterActivity extends Activity {
 		
 		initViews();
 		
-		mContext = ChapterActivity.this;
 		mManhuaContents = new ArrayList<ManhuaContent>();
 		getManhuaChapterByName = new GetManhuaChapterByName(mContext, mHandler);
 		getManhuaChapterByName.getChapterByName(mManhuaName, 0);
 		
-		try {
-			// 获取图片缓存路径
-			File cacheDir = getDiskCacheDir(mContext, Config.Disk_Route_Chapter);
-			if (cacheDir.exists()) {
-				// 创建DiskLruCache实例，初始化缓存数据
-				mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(mContext), 1, 50 * 1024 * 1024);
-			}
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
 		
-		loadBitmaps(mIV_cover, mManhuaCover);
+		mImageLoader.displayImage(mManhuaCover , mIV_cover , mOptions , new SimpleImageLoadingListener() , new ImageLoadingProgressListener() {
+			@Override
+			public void onProgressUpdate(String imageUri, View view, int current, int total) {
+				
+			}
+		});
+		
 		
 		
 		mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -123,13 +152,32 @@ public class ChapterActivity extends Activity {
 			}
 		});
 		
+		
+		mListView.setOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+				if (mtotalItemCount == mlastVisibleItem && scrollState == SCROLL_STATE_IDLE) {
+					mFooter.findViewById(R.id.load_layout).setVisibility(View.VISIBLE);
+					loadData();
+				}
+			}
+			
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				mlastVisibleItem = firstVisibleItem + visibleItemCount;
+				mtotalItemCount = totalItemCount;
+				mfirstVisibleItem = firstVisibleItem;
+			}
+		});
+		
+		
 		//顶部的TopBar相关的设置
 		Topbar topbar = (Topbar) findViewById(R.id.id_topBar);
 		topbar.setTopBarTitle(mManhuaName);
         topbar.setOnTopbarClickListener(new Topbar.topbarClickListener() {
 			@Override
 			public void rightClick() {
-				Toast.makeText(mContext , "Right button be clicked." , Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext , "暂时没有功能" , Toast.LENGTH_SHORT).show();
 			}
 			
 			@Override
@@ -139,11 +187,28 @@ public class ChapterActivity extends Activity {
 		});
 	}
 	
-	
-	
+	private void loadData() {
+		Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				int count = mManhuaContents.size();
+				if(count != mtotalCount) {
+					getManhuaChapterByName.getChapterByName(mManhuaName, count);
+				}
+				else {
+					Toast.makeText(mContext, "没有数据可以供加载了", Toast.LENGTH_SHORT).show();
+				}
+				mFooter.findViewById(R.id.load_layout).setVisibility(View.GONE);
+			}
+		}, 1000);
+	}
 
 	private void initViews() {
+		mFooter = LayoutInflater.from(mContext).inflate(R.layout.footer_layout , null);
+		mFooter.findViewById(R.id.load_layout).setVisibility(View.GONE);
 		mListView = (ListView) findViewById(R.id.id_listView);
+		mListView.addFooterView(mFooter);
 		mTV_name = (TextView) findViewById(R.id.id_chapter_name);
 		mTV_name.setText(mManhuaName);
 		
@@ -165,93 +230,15 @@ public class ChapterActivity extends Activity {
 		mTV_lastUpdate.setText("最近更新 : " + year + "年" + month + "月" + day + "日");
 		
 		mIV_cover = (ImageView) findViewById(R.id.id_manhua_chapter_Cover);
+		
+		mImageLoader = ImageLoader.getInstance();
+		mOptions = new DisplayImageOptions.Builder()
+		.showImageOnLoading(R.drawable.empty_photo)
+		.showImageOnFail(R.drawable.empty_photo)
+		.cacheInMemory(true)
+		.cacheOnDisk(true)
+		.bitmapConfig(android.graphics.Bitmap.Config.RGB_565)
+		.build();
 	}
-	
-	
-	
-	public void loadBitmaps(ImageView imageView, String imageUrl) {
-		try {
-			if(mDiskLruCache != null) {
-				//就从硬盘中去加载图片
-				String key = hashKeyForDisk(imageUrl);
-				DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
-				if(snapshot != null) { //如果硬盘中有这个缓存，就直接加载
-					InputStream is = snapshot.getInputStream(0);
-					Bitmap tmpBitmap = BitmapFactory.decodeStream(is);
-					imageView.setImageBitmap(tmpBitmap);
-				}
-				else {
-					return;
-				}
-			}
-			else {
-				return ;
-			}
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	/**
-	 * 使用MD5算法对传入的key进行加密并返回。
-	 */
-	public String hashKeyForDisk(String key) {
-		String cacheKey;
-		try {
-			final MessageDigest mDigest = MessageDigest.getInstance("MD5");
-			mDigest.update(key.getBytes());
-			cacheKey = bytesToHexString(mDigest.digest());
-		} catch (NoSuchAlgorithmException e) {
-			cacheKey = String.valueOf(key.hashCode());
-		}
-		return cacheKey;
-	}
-	
-	
-	private String bytesToHexString(byte[] bytes) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < bytes.length; i++) {
-			String hex = Integer.toHexString(0xFF & bytes[i]);
-			if (hex.length() == 1) {
-				sb.append('0');
-			}
-			sb.append(hex);
-		}
-		return sb.toString();
-	}
-	
-	
-	/**
-	 * 根据传入的uniqueName获取硬盘缓存的路径地址。
-	 */
-	public File getDiskCacheDir(Context context, String uniqueName) {
-		String cachePath;
-		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !Environment.isExternalStorageRemovable()) {
-			cachePath = context.getExternalCacheDir().getPath();
-		} 
-		else {
-			cachePath = context.getCacheDir().getPath();
-		}
-		return new File(cachePath + File.separator + uniqueName);
-	}
-	
-	
-	/**
-	 * 获取当前应用程序的版本号。
-	 */
-	public int getAppVersion(Context context) {
-		try {
-			PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-			return info.versionCode;
-		} 
-		catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-		return 1;
-	}
-	
-	
 
 }

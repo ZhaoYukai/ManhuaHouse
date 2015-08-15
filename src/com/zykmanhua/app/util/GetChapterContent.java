@@ -13,7 +13,6 @@ import com.zykmanhua.app.bean.ManhuaPicture;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 public class GetChapterContent {
 	
@@ -61,7 +60,7 @@ public class GetChapterContent {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						Message msg = Message.obtain(mHandler, Config.RESULT_FAIL_CODE, statusCode + ":" + throwable.getMessage());
+						Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
 						msg.sendToTarget();
 					}
 				});
@@ -96,7 +95,10 @@ public class GetChapterContent {
 				}
 				return manhuaPictureList;
 			}
-			
+			else {
+				Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , code);
+				msg.sendToTarget();
+			}
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

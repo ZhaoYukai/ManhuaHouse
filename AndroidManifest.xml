@@ -25,7 +25,7 @@
         <!-- 聚合数据的必要的验证id -->
         <meta-data
             android:name="com.thinkland.juheapi.openid"
-            android:value="" />
+            android:value="你自己的open id" />
         
         <activity
             android:name="com.zykmanhua.app.activity.MainActivity"

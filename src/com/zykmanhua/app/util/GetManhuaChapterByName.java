@@ -59,7 +59,7 @@ public class GetManhuaChapterByName {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						Message msg = Message.obtain(mHandler, Config.RESULT_FAIL_CODE, statusCode + ":" + throwable.getMessage());
+						Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
 						msg.sendToTarget();
 					}
 				});
@@ -85,10 +85,15 @@ public class GetManhuaChapterByName {
 					JSONObject dataElement = jsonArray.getJSONObject(i);
 					ManhuaContent manhuaContent = new ManhuaContent();
 					manhuaContent.setmName(jsonObject.getJSONObject(Config.JSON_result).getString(Config.JSON_comicName));
+					manhuaContent.setmTotal(jsonObject.getJSONObject(Config.JSON_result).getInt(Config.JSON_total));
 					manhuaContent.setmChapterName(dataElement.getString(Config.JSON_name));
 					manhuaContent.setmChapterId(dataElement.getInt(Config.JSON_id));
 					manhuaContentList.add(manhuaContent);
 				}	
+			}
+			else {
+				Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , code);
+				msg.sendToTarget();
 			}
 		} 
 		catch (Exception e) {
