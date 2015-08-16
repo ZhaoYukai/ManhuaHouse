@@ -50,6 +50,7 @@ public class ChapterActivity extends Activity {
 	private int mtotalItemCount;
 	private int mfirstVisibleItem;
 	private boolean mFirst = true;
+	private boolean mFirstOffline = true;
 	private int mtotalCount;
 	
 	private List<ManhuaContent> mManhuaContents = null;
@@ -83,14 +84,32 @@ public class ChapterActivity extends Activity {
 					mAdapter.notifyDataSetChanged();
 					return;
 				}
-				mAdapter = new ChapterAdapter(mContext, mManhuaContents);
-				mListView.setAdapter(mAdapter);
 				break;
 			case Config.RESULT_FAIL_CODE:
 				int errorCode = (Integer) msg.obj;
 				showToast(errorCode);
+				return ;
+			case Config.RESULT_OFFLINE_CODE:
+				int offlineCode = Config.STATUS_CODE_NO_NETWORK;
+				showToast(offlineCode);
+				if(mFirstOffline == true) {
+					mManhuaContents = (List<ManhuaContent>) msg.obj;
+					mtotalCount = mManhuaContents.get(0).getmTotal();
+					mFirstOffline = false;
+				}
+				else {
+					List<ManhuaContent> tmp = new ArrayList<ManhuaContent>();
+					tmp = (List<ManhuaContent>) msg.obj;
+					for(ManhuaContent m : tmp) {
+						mManhuaContents.add(m);
+					}
+					mAdapter.notifyDataSetChanged();
+					return;
+				}
 				break;
 			}
+			mAdapter = new ChapterAdapter(mContext, mManhuaContents);
+			mListView.setAdapter(mAdapter);
 		};
 	};
 	
@@ -98,7 +117,7 @@ public class ChapterActivity extends Activity {
 	private void showToast(int errorCode) {
 		switch (errorCode) {
 		case Config.STATUS_CODE_NO_NETWORK:
-			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, "网络不给力,您当前处于离线状态", Toast.LENGTH_SHORT).show();
 			break;
 		case Config.STATUS_CODE_NO_INIT:
 			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();
@@ -116,6 +135,9 @@ public class ChapterActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_chapter);
+		
+		mFirst = true;
+		mFirstOffline = true;
 		
 		mContext = ChapterActivity.this;
 		mManhuaName = getIntent().getStringExtra(Config.KEY_ManhuaName);

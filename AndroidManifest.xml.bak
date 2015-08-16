@@ -27,11 +27,11 @@
         <!-- 聚合数据的必要的验证id -->
         <meta-data
             android:name="com.thinkland.juheapi.openid"
-            android:value="聚合数据的必要的验证id" />
+            android:value="JHdc5c31d5ee7c2899e3c7e7b6b53483e3" />
         <!-- 蒲公英的必要的验证id -->
         <meta-data
             android:name="PGYER_APPID"
-            android:value="蒲公英的必要的验证id" >
+            android:value="3db0a835e5cc7547ede833e3bcbd6048" >
         </meta-data>
 
         <activity

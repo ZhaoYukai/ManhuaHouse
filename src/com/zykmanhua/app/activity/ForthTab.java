@@ -35,11 +35,7 @@ public class ForthTab extends Fragment {
 	private int mlastVisibleItem;
 	private int mtotalItemCount;
 	private boolean mFirst = true;
-	
-	
-	public ForthTab() {
-		// TODO Auto-generated constructor stub
-	}
+	private boolean mFirstOffline = true;
 	
 	
 	Handler mHandler = new Handler() {
@@ -60,54 +56,71 @@ public class ForthTab extends Fragment {
 					mManhuaTypeAdapter.notifyDataSetChanged();
 					return;
 				}
-				mManhuaTypeAdapter = new ManhuaTypeAdapter(mContext, mManhuas, mListView);
-				mListView.setAdapter(mManhuaTypeAdapter);
-				
-				mListView.setOnScrollListener(new OnScrollListener() {
-					@Override
-					public void onScrollStateChanged(AbsListView view, int scrollState) {
-						if (mtotalItemCount == mlastVisibleItem && scrollState == SCROLL_STATE_IDLE) {
-							loadData();
-						}
-					}
-					
-					private void loadData() {
-						Handler handler = new Handler();
-						handler.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								int count = mManhuas.size() + 1;
-								getManhuaDataByType.getManhuaBook("少女漫画", count);
-							}
-						}, 500);
-					}
-
-					@Override
-					public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-						mlastVisibleItem = firstVisibleItem + visibleItemCount;
-						mtotalItemCount = totalItemCount;
-					}
-				});
-				
-				mListView.setOnItemClickListener(new OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						Manhua manhua = mManhuas.get(position);
-						Intent intent = new Intent(mContext , ChapterActivity.class);
-						intent.putExtra(Config.KEY_ManhuaName, manhua.getmName());
-						intent.putExtra(Config.KEY_ManhuaType, manhua.getmType());
-						intent.putExtra(Config.KEY_ManhuaLastUpdate, manhua.getmLastUpdate());
-						intent.putExtra(Config.KEY_ManhuaIsFinish, manhua.ismFinish());
-						intent.putExtra(Config.KEY_CoverImg , manhua.getmCoverImg());
-						startActivity(intent);
-					}
-				});
 				break;
 			case Config.RESULT_FAIL_CODE:
 				int errorCode = (Integer) msg.obj;
 				showToast(errorCode);
+				return ;
+			case Config.RESULT_OFFLINE_CODE:
+				int offlineCode = Config.STATUS_CODE_NO_NETWORK;
+				showToast(offlineCode);
+				if(mFirstOffline == true) {
+					mManhuas = (ArrayList<Manhua>) msg.obj;
+					mFirstOffline = false;
+				}
+				else {
+					ArrayList<Manhua> tmp = new ArrayList<Manhua>();
+					tmp = (ArrayList<Manhua>) msg.obj;
+					for(Manhua m : tmp) {
+						mManhuas.add(m);
+					}
+					mManhuaTypeAdapter.notifyDataSetChanged();
+					return;
+				}
 				break;
 			}
+			mManhuaTypeAdapter = new ManhuaTypeAdapter(mContext, mManhuas, mListView);
+			mListView.setAdapter(mManhuaTypeAdapter);
+			
+			mListView.setOnScrollListener(new OnScrollListener() {
+				@Override
+				public void onScrollStateChanged(AbsListView view, int scrollState) {
+					if (mtotalItemCount == mlastVisibleItem && scrollState == SCROLL_STATE_IDLE) {
+						loadData();
+					}
+				}
+				
+				private void loadData() {
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							int count = mManhuas.size() + 1;
+							getManhuaDataByType.getManhuaBook("少女漫画", count);
+						}
+					}, 500);
+				}
+
+				@Override
+				public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+					mlastVisibleItem = firstVisibleItem + visibleItemCount;
+					mtotalItemCount = totalItemCount;
+				}
+			});
+			
+			mListView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					Manhua manhua = mManhuas.get(position);
+					Intent intent = new Intent(mContext , ChapterActivity.class);
+					intent.putExtra(Config.KEY_ManhuaName, manhua.getmName());
+					intent.putExtra(Config.KEY_ManhuaType, manhua.getmType());
+					intent.putExtra(Config.KEY_ManhuaLastUpdate, manhua.getmLastUpdate());
+					intent.putExtra(Config.KEY_ManhuaIsFinish, manhua.ismFinish());
+					intent.putExtra(Config.KEY_CoverImg , manhua.getmCoverImg());
+					startActivity(intent);
+				}
+			});
 		};
 		
 	};
@@ -116,7 +129,7 @@ public class ForthTab extends Fragment {
 	private void showToast(int errorCode) {
 		switch (errorCode) {
 		case Config.STATUS_CODE_NO_NETWORK:
-			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, "网络不给力,您当前处于离线状态", Toast.LENGTH_SHORT).show();
 			break;
 		case Config.STATUS_CODE_NO_INIT:
 			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();
@@ -130,8 +143,12 @@ public class ForthTab extends Fragment {
 	}
 	
 	
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		
+		mFirst = true;
+		mFirstOffline = true;
 		
 		View view = inflater.inflate(R.layout.frag_second, container, false);
 		mContext = getActivity().getApplicationContext();

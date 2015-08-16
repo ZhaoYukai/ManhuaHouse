@@ -46,28 +46,32 @@ public class SearchActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case Config.RESULT_SUCCESS_CODE:
-				mManhuas = (ArrayList<Manhua>) msg.obj;
-				mManhuaTypeAdapter = new ManhuaTypeAdapter(mContext, mManhuas, mListView);
-				mListView.setAdapter(mManhuaTypeAdapter);
-				mListView.setOnItemClickListener(new OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						Manhua manhua = mManhuas.get(position);
-						Intent intent = new Intent(mContext , ChapterActivity.class);
-						intent.putExtra(Config.KEY_ManhuaName, manhua.getmName());
-						intent.putExtra(Config.KEY_ManhuaType, manhua.getmType());
-						intent.putExtra(Config.KEY_ManhuaLastUpdate, manhua.getmLastUpdate());
-						intent.putExtra(Config.KEY_ManhuaIsFinish, manhua.ismFinish());
-						intent.putExtra(Config.KEY_CoverImg , manhua.getmCoverImg());
-						startActivity(intent);
-					}
-				});
 				break;
 			case Config.RESULT_FAIL_CODE:
 				int errorCode = (Integer) msg.obj;
 				showToast(errorCode);
+				return ;
+			case Config.RESULT_OFFLINE_CODE:
+				int offlineCode = Config.STATUS_CODE_NO_NETWORK;
+				showToast(offlineCode);
 				break;
 			}
+			mManhuas = (ArrayList<Manhua>) msg.obj;
+			mManhuaTypeAdapter = new ManhuaTypeAdapter(mContext, mManhuas, mListView);
+			mListView.setAdapter(mManhuaTypeAdapter);
+			mListView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					Manhua manhua = mManhuas.get(position);
+					Intent intent = new Intent(mContext , ChapterActivity.class);
+					intent.putExtra(Config.KEY_ManhuaName, manhua.getmName());
+					intent.putExtra(Config.KEY_ManhuaType, manhua.getmType());
+					intent.putExtra(Config.KEY_ManhuaLastUpdate, manhua.getmLastUpdate());
+					intent.putExtra(Config.KEY_ManhuaIsFinish, manhua.ismFinish());
+					intent.putExtra(Config.KEY_CoverImg , manhua.getmCoverImg());
+					startActivity(intent);
+				}
+			});
 		};
 	};
 	
@@ -75,7 +79,7 @@ public class SearchActivity extends Activity {
 	private void showToast(int errorCode) {
 		switch (errorCode) {
 		case Config.STATUS_CODE_NO_NETWORK:
-			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, "网络不给力,您当前处于离线状态", Toast.LENGTH_SHORT).show();
 			break;
 		case Config.STATUS_CODE_NO_INIT:
 			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();

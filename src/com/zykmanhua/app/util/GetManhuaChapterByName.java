@@ -11,6 +11,7 @@ import com.thinkland.sdk.android.Parameters;
 import com.zykmanhua.app.bean.ManhuaContent;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 
@@ -40,6 +41,12 @@ public class GetManhuaChapterByName {
 					@Override
 					public void onSuccess(int statusCode, String responseString) {
 						if(statusCode == Config.STATUS_CODE_SUCCESS) {
+							//把接收到的JSON数据保存到本地，通过skipNumber来作为key区分
+							@SuppressWarnings("static-access")
+							SharedPreferences.Editor editor = mContext.getSharedPreferences(Config.Path_offline_ManhuaChapter, mContext.MODE_PRIVATE).edit();
+							editor.putString(name + skipNumber, responseString);
+							editor.commit();
+							
 							ArrayList<ManhuaContent> manhuaContentList = parseJSON(responseString);
 							if(manhuaContentList != null && mHandler != null) {
 								Message msg = Message.obtain(mHandler , Config.RESULT_SUCCESS_CODE , manhuaContentList);
@@ -59,8 +66,16 @@ public class GetManhuaChapterByName {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
-						msg.sendToTarget();
+						//如果没有联网，就会调用这个onFailure()方法
+						//从本地文件中取出数据
+						@SuppressWarnings("static-access")
+						SharedPreferences preferences = mContext.getSharedPreferences(Config.Path_offline_ManhuaChapter, mContext.MODE_PRIVATE);
+						String response = preferences.getString(name + skipNumber, "0");
+						ArrayList<ManhuaContent> manhuaContentList = parseJSON(response);
+						if(manhuaContentList != null && mHandler != null) {
+							Message msg = Message.obtain(mHandler , Config.RESULT_OFFLINE_CODE , manhuaContentList);
+							msg.sendToTarget();
+						}
 					}
 				});
 	}

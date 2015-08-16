@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 
+import com.pgyersdk.update.PgyUpdateManager;
 import com.viewpagerindicator.TabPageIndicator;
 import com.zykmanhua.app.R;
 import com.zykmanhua.app.adapter.TabAdapter;
@@ -25,6 +26,9 @@ public class MainActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
+		
+		//检查当前是否是最新版本
+		PgyUpdateManager.register(MainActivity.this);
 
 		initView();
 		

@@ -35,15 +35,19 @@ public class ContentActivity extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case Config.RESULT_SUCCESS_CODE:
-				mManhuaPictures = (List<ManhuaPicture>) msg.obj;
-				mContentAdapter = new ContentAdapter(mContext, mManhuaPictures,mViewPager);
-				mViewPager.setAdapter(mContentAdapter);
 				break;
 			case Config.RESULT_FAIL_CODE:
 				int errorCode = (Integer) msg.obj;
 				showToast(errorCode);
+				return ;
+			case Config.RESULT_OFFLINE_CODE:
+				int offlineCode = Config.STATUS_CODE_NO_NETWORK;
+				showToast(offlineCode);
 				break;
 			}
+			mManhuaPictures = (List<ManhuaPicture>) msg.obj;
+			mContentAdapter = new ContentAdapter(mContext, mManhuaPictures,mViewPager);
+			mViewPager.setAdapter(mContentAdapter);
 		};
 	};
 	
@@ -51,7 +55,7 @@ public class ContentActivity extends Activity {
 	private void showToast(int errorCode) {
 		switch (errorCode) {
 		case Config.STATUS_CODE_NO_NETWORK:
-			Toast.makeText(mContext, errorCode + " : 网络不给力", Toast.LENGTH_SHORT).show();
+			Toast.makeText(mContext, "网络不给力,您当前处于离线状态", Toast.LENGTH_SHORT).show();
 			break;
 		case Config.STATUS_CODE_NO_INIT:
 			Toast.makeText(mContext, errorCode + " : 系统错误，没有进行初始化", Toast.LENGTH_SHORT).show();

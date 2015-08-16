@@ -3,9 +3,9 @@ package com.zykmanhua.app.util;
 public class Config {
 	
 	//聚合数据的app key
-	public static final String APP_KEY = "聚合数据的app key";
+	public static final String APP_KEY = "3c26f9550893de6a25fdbbd31cc0604b";
 	//蒲公英的app id
-	public static final String Pgy_ID = "蒲公英的app id";
+	public static final String Pgy_ID = "3db0a835e5cc7547ede833e3bcbd6048";
 	public static final int APP_ID = 163;
 	
 	public static final String JSON_error_code = "error_code";

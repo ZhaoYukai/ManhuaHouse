@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 
@@ -40,6 +41,12 @@ public class GetManhuaDataByType {
 					@Override
 					public void onSuccess(int statusCode, String responseString) {
 						if(statusCode == Config.STATUS_CODE_SUCCESS) {
+							//把接收到的JSON数据保存到本地，通过skipNumber来作为key区分
+							@SuppressWarnings("static-access")
+							SharedPreferences.Editor editor = mContext.getSharedPreferences(Config.Path_offline_ManhuaData, mContext.MODE_PRIVATE).edit();
+							editor.putString(manhuaType + skipNumber, responseString);
+							editor.commit();
+							
 							ArrayList<Manhua> manhuaList = parseJSON(responseString);
 							if(manhuaList != null && mHandler != null) {
 								Message msg = Message.obtain(mHandler , Config.RESULT_SUCCESS_CODE , manhuaList);
@@ -59,8 +66,16 @@ public class GetManhuaDataByType {
 					
 					@Override
 					public void onFailure(int statusCode, String responseString, Throwable throwable) {
-						Message msg = Message.obtain(mHandler , Config.RESULT_FAIL_CODE , statusCode);
-						msg.sendToTarget();
+						//如果没有联网，就会调用这个onFailure()方法
+						//从本地文件中取出数据
+						@SuppressWarnings("static-access")
+						SharedPreferences preferences = mContext.getSharedPreferences(Config.Path_offline_ManhuaData, mContext.MODE_PRIVATE);
+						String response = preferences.getString(manhuaType + skipNumber, "0");
+						ArrayList<Manhua> manhuaList = parseJSON(response);
+						if(manhuaList != null && mHandler != null) {
+							Message msg = Message.obtain(mHandler , Config.RESULT_OFFLINE_CODE , manhuaList);
+							msg.sendToTarget();
+						}
 					}
 				});
 		

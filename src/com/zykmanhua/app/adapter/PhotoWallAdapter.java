@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * GridView的适配器，负责异步从网络上下载图片展示在照片墙上。
@@ -63,11 +64,13 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Manhua manhua = getItem(position);
 		String imageUrl = manhua.getmCoverImg();
+		String manhuaName = manhua.getmName();
 		ViewHolder viewHolder = null;
 		if(convertView == null) {
 			viewHolder = new ViewHolder();
 			convertView = mLayoutInflater.inflate(R.layout.photo_layout, null);
 			viewHolder.imageView = (ImageView) convertView.findViewById(R.id.id_photo);
+			viewHolder.textView = (TextView) convertView.findViewById(R.id.id_firsttab_manhua_name);
 			convertView.setTag(viewHolder);
 		}
 		else {
@@ -77,6 +80,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 		if(viewHolder.imageView.getLayoutParams().height != mItemHeight) {
 			viewHolder.imageView.getLayoutParams().height = mItemHeight;
 		}
+		viewHolder.textView.setText(manhuaName);
 		mImageLoader.displayImage(imageUrl , viewHolder.imageView , mOptions , new SimpleImageLoadingListener() , new ImageLoadingProgressListener() {
 			@Override
 			public void onProgressUpdate(String imageUri, View view, int current, int total) {
@@ -89,6 +93,7 @@ public class PhotoWallAdapter extends ArrayAdapter<Manhua> {
 	
 	class ViewHolder {
 		ImageView imageView = null;
+		TextView textView = null;
 	}
 	
 	
