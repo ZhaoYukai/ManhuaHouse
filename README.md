@@ -28,9 +28,9 @@
 Universal-Image-Loader不仅实现了上面所说的三级缓存，而且对内存释放进行了优化。<br>
 Universal-Image-Loader的开源库地址：https://github.com/nostra13/Android-Universal-Image-Loader<br>
 <br>
-（3）使用自定义控件ZoomImageView来扩充ImageView的功能。<br>
-由于ImageView并没有能对图片使用手势控制的功能，因此需要自定义控件来实现对图片的<br>
-手势缩放、缩放后对图片平移、双击缩放等功能。<br>
+~~（3）使用自定义控件ZoomImageView来扩充ImageView的功能。~~<br>
+~~由于ImageView并没有能对图片使用手势控制的功能，因此需要自定义控件来实现对图片的~~<br>
+~~手势缩放、缩放后对图片平移、双击缩放等功能。~~<br>
 <br>
 （3）自定义的这个ZoomImageView还是稍微有点性能问题，所以使用了更加优秀的开源库PhotoView<br>
 该开源库不仅实现了多点触碰缩放、双击缩放、平滑移动的功能，而且能与Universal-Image-Loader<br>
