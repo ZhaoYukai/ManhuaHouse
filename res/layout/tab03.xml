@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical" >
+        
+        <TextView 
+            android:id="@+id/id_general_setting_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@android:color/darker_gray"
+            android:text="通用设置"/>
+        
+        <Button 
+            android:id="@+id/id_general_setting_clearMemory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/setting_bg"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="5dp"
+            android:text="清理图片缓存"/>
+        
+        <Button 
+            android:id="@+id/id_general_setting_checkUpdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/setting_bg"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="5dp"
+            android:text="检查更新"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical" >
+        
+        <TextView 
+            android:id="@+id/id_about_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@android:color/darker_gray"
+            android:text="关于"/>
+        
+        <Button 
+            android:id="@+id/id_about_feedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/setting_bg"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="5dp"
+            android:text="意见反馈"/>
+        
+        <Button 
+            android:id="@+id/id_about_manhuahouse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/setting_bg"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="5dp"
+            android:text="关于漫画屋"/>
+
+    </LinearLayout>
+
+</LinearLayout>

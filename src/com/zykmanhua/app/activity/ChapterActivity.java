@@ -1,22 +1,32 @@
 package com.zykmanhua.app.activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.zykmanhua.app.R;
 import com.zykmanhua.app.adapter.ChapterAdapter;
+import com.zykmanhua.app.bean.GroupCollect;
+import com.zykmanhua.app.bean.Manhua;
 import com.zykmanhua.app.bean.ManhuaContent;
 import com.zykmanhua.app.util.Config;
 import com.zykmanhua.app.util.GetManhuaChapterByName;
+import com.zykmanhua.app.util.MD5Tools;
 import com.zykmanhua.app.util.Topbar;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +50,7 @@ public class ChapterActivity extends Activity {
 	private TextView mTV_isFinish = null;
 	private ListView mListView = null;
 	private ImageView mIV_cover = null;
+	private Topbar mTopbar = null;
 	
 	private String mManhuaName = null;
 	private String mManhuaType = null;
@@ -48,10 +59,11 @@ public class ChapterActivity extends Activity {
 	private boolean mManhuaIsFinish;
 	private int mlastVisibleItem;
 	private int mtotalItemCount;
-	private int mfirstVisibleItem;
 	private boolean mFirst = true;
 	private boolean mFirstOffline = true;
 	private int mtotalCount;
+	private boolean hasCollected = false;
+	private GroupCollect mGroupCollect = null;
 	
 	private List<ManhuaContent> mManhuaContents = null;
 	private GetManhuaChapterByName getManhuaChapterByName = null;
@@ -60,7 +72,6 @@ public class ChapterActivity extends Activity {
 	
 	private ImageLoader mImageLoader = null;
 	private DisplayImageOptions mOptions = null;
-	
 	
 	
 	
@@ -188,18 +199,80 @@ public class ChapterActivity extends Activity {
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 				mlastVisibleItem = firstVisibleItem + visibleItemCount;
 				mtotalItemCount = totalItemCount;
-				mfirstVisibleItem = firstVisibleItem;
 			}
 		});
 		
+		//先从本地文件中还原出字符串
+		mGroupCollect = new GroupCollect();
+		SharedPreferences sharedPreferences = getSharedPreferences("ManhuaCollect", MODE_PRIVATE);
+		String response = sharedPreferences.getString("collect", null);
+		if(response != null) {
+			//从json数据中解析，还原成HashMap
+			JSONObject decodeGroupCollect = JSON.parseObject(response);
+			JSONObject jsonObj = decodeGroupCollect.getJSONObject("collectMap");
+			//取出key
+			Set<String> keys = jsonObj.keySet();
+			String tmpKey = MD5Tools.hashKeyForDisk(mManhuaCover);
+			hasCollected = keys.contains(tmpKey);
+			if(hasCollected == true) {
+				mTopbar.setTopBarRightTitle("已收藏");
+				mTopbar.setTopBarRightColor(Color.YELLOW);
+			}
+			else {
+				mTopbar.setTopBarRightTitle("收藏");
+				mTopbar.setTopBarRightColor(Color.WHITE);
+			}
+			//继续取出JSON中的数据，继续构造HashMap
+			String[] st = new String[keys.size()];
+			Iterator<String> iterator = keys.iterator();
+			int i = 0;
+			while(iterator.hasNext()) {
+				st[i] = iterator.next();
+				i++;
+			}
+			for(int j = 0 ; j < st.length ; j++) {
+				JSONObject obj = jsonObj.getJSONObject(st[j]);
+				String name = obj.getString("mName");
+				int updateTime = obj.getIntValue("mLastUpdate");
+				String url = obj.getString("mCoverImg");
+				String type = obj.getString("mType");
+				String des = obj.getString("mDes");
+				boolean isfinish = obj.getBooleanValue("mFinish");
+				Manhua manhuaCollect = new Manhua(type, name, des, isfinish, updateTime, url);
+				mGroupCollect.addCollect(manhuaCollect);
+			}
+			//上面这个for循环结束之后，mGroupCollect里面就存储了当前所有的已收藏的漫画数据
+		}
+		
+		
+		//updateCollectListener = ;
 		
 		//顶部的TopBar相关的设置
-		Topbar topbar = (Topbar) findViewById(R.id.id_topBar);
-		topbar.setTopBarTitle(mManhuaName);
-        topbar.setOnTopbarClickListener(new Topbar.topbarClickListener() {
+		mTopbar.setTopBarTitle(mManhuaName);
+        mTopbar.setOnTopbarClickListener(new Topbar.topbarClickListener() {
 			@Override
 			public void rightClick() {
-				Toast.makeText(mContext , "暂时没有功能" , Toast.LENGTH_SHORT).show();
+				if(hasCollected == false) { //如果为false，表示还没被收藏过，既然单击了就收藏
+					mTopbar.setTopBarRightTitle("已收藏");
+					mTopbar.setTopBarRightColor(Color.YELLOW);
+					//构造HashMap
+					Manhua manhuaCollect = new Manhua(mManhuaType, mManhuaName, "无", mManhuaIsFinish, mManhuaLastUpdate, mManhuaCover);
+					String urlKey = MD5Tools.hashKeyForDisk(mManhuaCover);
+					HashMap<String , Manhua> hashMap = new HashMap<String, Manhua>();
+					hashMap.put(urlKey, manhuaCollect);
+					//HashMap转换为JSON数据
+					mGroupCollect.addCollect(manhuaCollect);
+				}
+				else { //如果为true，表示已被收藏过，单击了就取消收藏
+					mTopbar.setTopBarRightTitle("收藏");
+					mTopbar.setTopBarRightColor(Color.WHITE);
+					mGroupCollect.removeCollect(mManhuaCover);
+				}
+				String jsonString = JSON.toJSONString(mGroupCollect);
+				//把json字符串保存进文件中
+				SharedPreferences.Editor editor = getSharedPreferences("ManhuaCollect" , MODE_PRIVATE).edit();
+				editor.putString("collect", jsonString);
+				editor.commit();
 			}
 			
 			@Override
@@ -233,6 +306,7 @@ public class ChapterActivity extends Activity {
 		mListView.addFooterView(mFooter);
 		mTV_name = (TextView) findViewById(R.id.id_chapter_name);
 		mTV_name.setText(mManhuaName);
+		mTopbar = (Topbar) findViewById(R.id.id_topBar);
 		
 		mTV_type = (TextView) findViewById(R.id.id_chapter_type);
 		mTV_type.setText(mManhuaType);

@@ -9,6 +9,7 @@
         <ignore path="src/com/zykmanhua/app/activity/FifthTab.java" />
         <ignore path="src/com/zykmanhua/app/activity/FirstTab.java" />
         <ignore path="src/com/zykmanhua/app/activity/ForthTab.java" />
+        <ignore path="src/com/zykmanhua/app/activity/MyRecordCollect.java" />
         <ignore path="src/com/zykmanhua/app/activity/SearchActivity.java" />
         <ignore path="src/com/zykmanhua/app/activity/SecondTab.java" />
         <ignore path="src/com/zykmanhua/app/activity/ThirdTab.java" />
@@ -17,6 +18,7 @@
         <ignore path="src/com/zykmanhua/app/activity/ChapterActivity.java" />
         <ignore path="src/com/zykmanhua/app/activity/SecondTab.java" />
         <ignore path="src/com/zykmanhua/app/adapter/ChapterAdapter.java" />
+        <ignore path="src/com/zykmanhua/app/adapter/ManhuaCollectAdapter.java" />
         <ignore path="src/com/zykmanhua/app/adapter/ManhuaTypeAdapter.java" />
         <ignore path="src/com/zykmanhua/app/adapter/PhotoWallAdapter.java" />
     </issue>

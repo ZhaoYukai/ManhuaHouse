@@ -72,5 +72,9 @@ public class Config {
 		"推荐" , "青年" , "少年" , "少女" , "耽美"
 	};
 	
+	public static String[] MYRECORD_TITLES = new String[] {
+		"收藏" , "历史"
+	};
+	
 
 }

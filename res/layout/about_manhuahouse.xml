@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:topbarcustom="http://schemas.android.com/apk/res/com.zykmanhua.app"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray"
+    android:orientation="vertical" >
+    
+    <com.zykmanhua.app.util.Topbar
+        android:id="@+id/id_about_topBar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        topbarcustom:leftText="后退"
+        topbarcustom:leftBackground="@drawable/blue_button"
+        topbarcustom:leftTextColor="#FFFFFF"
+        topbarcustom:rightText=""
+        topbarcustom:rightTextColor="#FFFFFF"
+        topbarcustom:title="关于漫画屋"
+        topbarcustom:titleTextColor="#123412"
+        topbarcustom:titleTextSize="5sp" >
+    </com.zykmanhua.app.util.Topbar>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:layout_marginBottom="5dp"
+        android:gravity="center"
+        android:orientation="vertical" >
+        
+        <ImageView 
+            android:id="@+id/id_about_head_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:src="@drawable/app_icon"/>
+        
+        <TextView 
+            android:id="@+id/id_about_head_dest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="漫画数据来源于聚合数据，给你不一样的二次元体验"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical" >
+        
+        <TextView 
+            android:id="@+id/id_about_bodyone_feedback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:text="问题反馈"/>
+        
+        <TextView 
+            android:id="@+id/id_about_bodyone_telephone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="电话: (+86)13521557633"/>
+        
+        <TextView 
+            android:id="@+id/id_about_bodyone_worktime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="时间: 工作日 周一到周五、10点-18点"/>
+        
+        <TextView 
+            android:id="@+id/id_about_bodyone_weibo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="新浪微博: @神圣伊米亚之王"/>
+
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:layout_marginTop="2dp"
+        android:orientation="vertical" >
+        
+        <TextView 
+            android:id="@+id/id_about_bodytwo_coop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:text="合作联系"/>
+        
+        <TextView 
+            android:id="@+id/id_about_bodytwo_telephone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="电话: (+86)13521557633"/>
+        
+        <TextView 
+            android:id="@+id/id_about_bodytwo_worktime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="时间: 工作日 周一到周五、10点-18点"/>
+        
+        <TextView 
+            android:id="@+id/id_about_bodytwo_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:text="邮箱: kay_922163@163.com"/>
+
+    </LinearLayout>
+    
+
+</LinearLayout>

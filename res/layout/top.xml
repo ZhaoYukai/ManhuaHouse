@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:background="#44ff0000"
+    android:background="#aaff0000"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     android:paddingLeft="5dp"
@@ -15,14 +15,15 @@
         android:textColor="@android:color/white"
         android:layout_alignParentLeft="true"
         android:gravity="center_vertical"
-        android:textSize="40sp"
+        android:textSize="25sp"
         android:layout_marginLeft="10dp"
         android:text="漫画屋"/>
     
     <Button
         android:id="@+id/id_btn_top_search"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
         android:background="@drawable/ic_action_search" />

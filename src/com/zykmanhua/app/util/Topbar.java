@@ -168,6 +168,15 @@ public class Topbar extends RelativeLayout{
 		tvTitle.setText(title);
 	}
 	
+	//设置TopBar右边按钮的文字
+	public void setTopBarRightTitle(String title) {
+		rightButton.setText(title);
+	}
+	
+	//设置TopBar右边按钮文字的颜色
+	public void setTopBarRightColor(int color) {
+		rightButton.setTextColor(color);
+	}
 	
 	
 	

@@ -3,6 +3,7 @@
     xmlns:topbarcustom="http://schemas.android.com/apk/res/com.zykmanhua.app"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     android:orientation="vertical" >
 
     <com.zykmanhua.app.util.Topbar
@@ -12,18 +13,18 @@
         topbarcustom:leftText="后退"
         topbarcustom:leftBackground="@drawable/blue_button"
         topbarcustom:leftTextColor="#FFFFFF"
+        topbarcustom:rightText="收藏"
         topbarcustom:rightBackground="@drawable/blue_button"
-        topbarcustom:rightText="更多"
         topbarcustom:rightTextColor="#FFFFFF"
         topbarcustom:title="自定义标题"
         topbarcustom:titleTextColor="#123412"
-        topbarcustom:titleTextSize="5sp" >
+        topbarcustom:titleTextSize="7sp" >
     </com.zykmanhua.app.util.Topbar>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#44ff00ff"
+        android:background="@drawable/blue_background"
         android:orientation="horizontal"
         android:padding="10dp" >
 
@@ -47,6 +48,7 @@
                 android:layout_gravity="center"
                 android:maxLines="1"
                 android:text="name"
+                android:textColor="@android:color/white"
                 android:textSize="30sp" />
 
             <TextView
@@ -56,6 +58,7 @@
                 android:layout_gravity="center"
                 android:maxLines="1"
                 android:text="type"
+                android:textColor="@android:color/white"
                 android:textSize="15sp" />
 
             <TextView
@@ -65,6 +68,7 @@
                 android:layout_gravity="center"
                 android:maxLines="1"
                 android:text="isFinish"
+                android:textColor="@android:color/white"
                 android:textSize="15sp" />
 
             <TextView
@@ -74,12 +78,17 @@
                 android:layout_gravity="center"
                 android:maxLines="1"
                 android:text="lastupdate"
+                android:textColor="@android:color/white"
                 android:textSize="15sp" />
         </LinearLayout>
+        
     </LinearLayout>
+    
+    
 
     <ListView
         android:id="@+id/id_listView"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
     </ListView>

@@ -55,9 +55,8 @@ public class ChapterAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 		
-		String ManhuaName = getItem(position).getmName();
 		String chapterName = getItem(position).getmChapterName();
-		viewHolder.tv_chapter.setText(ManhuaName + " ---> " + chapterName);
+		viewHolder.tv_chapter.setText(chapterName);
 		
 		return convertView;
 	}

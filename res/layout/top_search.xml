@@ -13,7 +13,7 @@
     	android:layout_alignParentTop="true"
     	android:paddingLeft="10dp"
     	android:paddingRight="10dp"
-    	android:background="#44ff0000">
+    	android:background="#aaff0000">
     	
         <Button 
             android:id="@+id/id_btn_cancel"
@@ -24,6 +24,8 @@
         	android:layout_alignParentRight="true"
         	android:textSize="12sp"
         	android:textStyle="bold"
+        	android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
         	android:background="@drawable/search_btn_background"
         	android:text="取消"/>
         

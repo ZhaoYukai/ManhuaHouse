@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+    
+    <TextView 
+        android:id="@+id/id_tv_myrecord_history_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="当前还没有浏览任何漫画"/>
+    
+    <Button
+        android:id="@+id/id_btn_myrecord_history_empty"
+        android:layout_width="92dp"
+        android:layout_height="43dp"
+        android:background="@drawable/red_button"
+        android:text="去看看"
+        android:textColor="@android:color/white"
+        android:textSize="20sp" />
+    
+</LinearLayout>
